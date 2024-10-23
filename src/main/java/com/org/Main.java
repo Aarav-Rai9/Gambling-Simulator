@@ -1,15 +1,17 @@
 package com.org;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
-
 
 public class Main {
 
     public static Scanner scanner = new Scanner(System.in);
     public static int balance = 0;
     private static final String BALANCE_FILE = "balance.txt";
+    private static Map<String, Integer> upgrades = new HashMap<>();
 
     public static void main(String[] args) {
         while (true) {
@@ -50,6 +52,7 @@ public class Main {
 
     public static void startNewGame() {
         balance = 0;
+        upgrades.clear();
         System.out.println("New game started. Balance is " + balance);
     }
 
@@ -67,6 +70,7 @@ public class Main {
         File file = new File(BALANCE_FILE);
         if (file.delete()) {
             balance = 0;
+            upgrades.clear();
             System.out.println("Game deleted. Balance reset to " + balance);
         } else {
             System.out.println("Error deleting the game.");
@@ -78,9 +82,10 @@ public class Main {
             System.out.println("Select an option:");
             System.out.println("1) Play");
             System.out.println("2) Check balance");
-            System.out.println("3) Exit");
+            System.out.println("3) Shop");
+            System.out.println("4) Exit");
 
-            System.out.print("Option (1 - 3): ");
+            System.out.print("Option (1 - 4): ");
             int option = scanner.nextInt();
 
             switch (option) {
@@ -91,6 +96,9 @@ public class Main {
                     System.out.println("Balance: " + balance);
                     break;
                 case 3:
+                    shop();
+                    break;
+                case 4:
                     saveGame();
                     return;
                 default:
@@ -148,12 +156,52 @@ public class Main {
         System.out.println("Number: " + number);
 
         if (guess == number) {
-            balance += bet * 10;
+            int multiplier = 10 + getUpgradeMultiplier();
+            balance += bet * multiplier;
             System.out.println("You won! Your balance is now " + balance);
         } else {
             balance -= bet;
             System.out.println("You lost! Your balance is now " + balance);
         }
+    }
+
+    public static void shop() {
+        while (true) {
+            System.out.println("Welcome to the shop! Select an option:");
+            System.out.println("1) Buy 2x Multiplier (Cost: 100)");
+            System.out.println("2) Buy 3x Multiplier (Cost: 200)");
+            System.out.println("3) Exit shop");
+
+            System.out.print("Option (1 - 3): ");
+            int option = scanner.nextInt();
+
+            switch (option) {
+                case 1:
+                    buyUpgrade("2x Multiplier", 100, 2);
+                    break;
+                case 2:
+                    buyUpgrade("3x Multiplier", 200, 3);
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid option!");
+            }
+        }
+    }
+
+    public static void buyUpgrade(String name, int cost, int multiplier) {
+        if (balance >= cost) {
+            balance -= cost;
+            upgrades.put(name, multiplier);
+            System.out.println(name + " purchased! Your balance is now " + balance);
+        } else {
+            System.out.println("Not enough balance to buy " + name);
+        }
+    }
+
+    public static int getUpgradeMultiplier() {
+        return upgrades.values().stream().mapToInt(Integer::intValue).sum();
     }
 
     private static int readBalance() {
