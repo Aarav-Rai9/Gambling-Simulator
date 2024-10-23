@@ -156,7 +156,7 @@ public class Main {
         System.out.println("Number: " + number);
 
         if (guess == number) {
-            int multiplier = 10 + getUpgradeMultiplier();
+            int multiplier = 10 * getUpgradeMultiplier();
             balance += bet * multiplier;
             System.out.println("You won! Your balance is now " + balance);
         } else {
